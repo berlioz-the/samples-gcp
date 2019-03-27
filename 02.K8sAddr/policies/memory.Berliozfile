@@ -1,0 +1,29 @@
+---
+kind: policy
+name: memory
+target:
+    cluster: addr
+config:
+    min: 100
+    max: 150
+
+---
+kind: policy
+name: memory
+target:
+    deployment: gprod
+    cluster: addr
+config:
+    min: 150
+    max: null
+
+---
+kind: policy
+name: memory
+target:
+    deployment: gprod
+    cluster: addr
+    service: proc
+config:
+    min: 200
+    max: 300

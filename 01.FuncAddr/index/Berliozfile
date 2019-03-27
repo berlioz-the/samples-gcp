@@ -1,0 +1,14 @@
+---
+kind: lambda
+cluster: addrf
+name: index
+
+runtime: nodejs6
+handler: handler
+timeout: 15
+
+consumes:
+    - database: book
+    - queue: jobs
+      actions:
+      - publish
