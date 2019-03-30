@@ -1,0 +1,18 @@
+---
+kind: policy
+name: memory
+target:
+    cluster: gcpx
+config:
+    min: 100
+    max: 150
+
+---
+kind: policy
+name: memory
+target:
+    deployment: gprod
+    cluster: gcpx
+config:
+    min: 150
+    max: null

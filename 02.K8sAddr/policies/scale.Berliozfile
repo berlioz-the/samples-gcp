@@ -1,0 +1,17 @@
+---
+kind: policy
+name: scale
+target:
+    cluster: addr
+    deployment: gprod
+    service: app
+config:
+    min: 1
+    max: 10
+    metrics: 
+      cpu: 
+        targetAverage: 44
+      memory: 
+        targetAverage: 1G
+      current_connections:
+        targetAverage: 200

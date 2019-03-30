@@ -1,0 +1,20 @@
+{
+  "name": "berlioz-sample-hello-web",
+  "version": "1.0.0",
+  "description": "berlioz-sample-hello-web",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.25.0",
+    "berlioz-gcp": "^1.0.7",
+    "berlioz-sdk": "^1.0.113",
+    "lodash": "^4.17.11",
+    "the-promise": "^1.1.4",
+    "google-libphonenumber": "^3.2.2",
+    "promise-mysql": "^3.3.1"
+  }
+}
