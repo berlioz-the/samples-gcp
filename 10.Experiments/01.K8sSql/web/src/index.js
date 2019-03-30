@@ -1,5 +1,6 @@
 const express = require('express')
 const Promise = require('promise');
+const _ = require('lodash');
 const berlioz = require('berlioz-sdk');
 const mysql = require('promise-mysql');
 
@@ -18,7 +19,7 @@ app.get('/', function (req, response) {
     return executeQuery('SELECT * FROM contacts')
         .then(result => {
             if (result) {
-                renderData.entries = result.body;
+                renderData.entries = result;
             }
         })
         .catch(error => {
@@ -58,9 +59,16 @@ app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT, process.env.BERLIOZ_LISTEN_A
 
 function executeQuery(querySql)
 {
+    console.log(`[executeQuery] begin`)
     return Promise.resolve(getConnection())
         .then(connection => {
+            console.log(`Executing query: ${querySql}`)
             return connection.query(querySql);
+        })
+        .then(result => {
+            console.log(`Query ${querySql} result:`)
+            console.log(result)
+            return result;
         })
 }
 
@@ -92,6 +100,7 @@ function getConnection()
     console.log(mysqlConfig.config);
     return Promise.resolve(mysql.createConnection(mysqlConfig.config))
         .then(result => {
+            console.log("Connected to DB.");
             mysqlConfig.connection = result;
             return result;
         })
