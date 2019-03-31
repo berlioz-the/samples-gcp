@@ -29,12 +29,10 @@ app.get('/', function (req, response) {
         entries: []
     };
 
-    // var options = { url: '/entries', json: true, resolveWithFullResponse: true };
-    // return berlioz.service('app').request(options)
     Promise.resolve()
         .then(() => {
             const firestore = new Firestore(mysqlConfig.peerConfig);
-            var collection = firestore.collection('aaa');
+            var collection = firestore.collection('users');
             return collection.listDocuments()
                 .then(documentRefs => {
                     return firestore.getAll(documentRefs);
@@ -52,7 +50,7 @@ app.get('/', function (req, response) {
         })
         .catch(error => {
             if (error instanceof Error) {
-                renderData.error = error.stack + error.stack;
+                renderData.error = error.message + error.stack;
             } else {
                 renderData.error = JSON.stringify(error, null, 2);
             }
@@ -64,16 +62,23 @@ app.get('/', function (req, response) {
 });
 
 app.post('/new-contact', (request, response) => {
-    var options = { url: '/entry', method: 'POST', body: request.body, json: true };
-    return berlioz.service('app').request(options)
-        .then(result => {
-            if (!result) {
-                return response.send({ error: 'No app peers present.' });
-            }
-            return response.send(result);
+    const firestore = new Firestore(mysqlConfig.peerConfig);
+    var document = firestore.doc(`users/${request.body.name}`);
+    return document.set(request.body)
+        .then(() => {
+            return response.send({ success: true });
         })
         .catch(error => {
-            return response.send({ error: error });
+            console.log(error);
+            console.log(error.message);
+            console.log(error.stack);
+            var errorMsg;
+            if (error instanceof Error) {
+                errorMsg = error.message + error.stack;
+            } else {
+                errorMsg = JSON.stringify(error, null, 2);
+            }
+            return response.send({ error: errorMsg });
         });
 });
 
