@@ -1,0 +1,11 @@
+---
+kind: lambda
+cluster: gcpx
+name: index
+
+runtime: nodejs6
+handler: handler
+timeout: 15
+
+consumes:
+    - database: store
