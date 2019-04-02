@@ -3,7 +3,6 @@ const berlioz = require('berlioz-sdk');
 const mysql = require('promise-mysql');
 const _ = require('lodash');
 const Promise = require('promise');
-const PubSub = require('@google-cloud/pubsub');
 
 const app = express();
 berlioz.setupExpress(app);
@@ -67,7 +66,7 @@ function publishJob(msg)
         ],
     };
     console.log("[publishJob] " + JSON.stringify(msgRequest, null, 4));
-    return berlioz.queue('jobs').client(PubSub, 'PublisherClient')
+    return berlioz.queue('jobs').client(PubSub, 'pubsub-publisher')
         .publish(msgRequest);
 }
 

@@ -7,19 +7,6 @@ var path = require('path');
 
 berlioz.addon(require('berlioz-gcp'));
 
-const Firestore = require('@google-cloud/firestore');
-var mysqlConfig = {
-    peerConfig: null
-};
-berlioz.database('store').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.peerConfig = peer.config;
-    } else {
-        mysqlConfig.peerConfig = null;
-    }
-    console.log(mysqlConfig)
-});
-
 exports.handler = (req, res) => {
 
     var renderData = {
@@ -41,9 +28,8 @@ exports.handler = (req, res) => {
 
 function processGet(req, renderData)
 {
-    const firestore = new Firestore(mysqlConfig.peerConfig);
-    var collection = firestore.collection('contacts');
-    return collection.listDocuments()
+    const client = berlioz.database('store').newClient('firestore');
+    return client.collection('contacts').listDocuments()
         .then(documentRefs => {
             return firestore.getAll(documentRefs);
         }).then(documentSnapshots => {
@@ -59,9 +45,8 @@ function processGet(req, renderData)
 
 function processPost(req, renderData)
 {
-    const firestore = new Firestore(mysqlConfig.peerConfig);
-    var document = firestore.doc(`contacts/${req.body.name}`);
-    return document.set(req.body);
+    const client = berlioz.database('store').newClient('firestore');
+    return client.doc(`contacts/${req.body.name}`).set(req.body);
 }
 
 function renderResult(res, renderData)

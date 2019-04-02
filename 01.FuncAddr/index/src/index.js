@@ -5,7 +5,6 @@ var _ = require('lodash');
 var Promise = require('promise');
 var ejs = require('ejs');
 var path = require('path');
-const PubSub = require('@google-cloud/pubsub');
 
 exports.handler = (req, res) => {
 
@@ -71,7 +70,7 @@ function publishMessage(msg)
             }
         ],
     };
-    return berlioz.queue('jobs').client(PubSub, 'PublisherClient')
+    return berlioz.queue('jobs').client('pubsub-publisher')
         .publish(msgRequest);
 }
 

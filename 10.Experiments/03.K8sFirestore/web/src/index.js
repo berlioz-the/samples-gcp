@@ -9,21 +9,6 @@ berlioz.setupExpress(app);
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
-const Firestore = require('@google-cloud/firestore');
-
-var mysqlConfig = {
-    peerConfig: null
-};
-
-berlioz.database('store').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.peerConfig = peer.config;
-    } else {
-        mysqlConfig.peerConfig = null;
-    }
-    console.log(mysqlConfig)
-});
-
 app.get('/', function (req, response) {
     var renderData = {
         entries: []
@@ -31,9 +16,8 @@ app.get('/', function (req, response) {
 
     Promise.resolve()
         .then(() => {
-            const firestore = new Firestore(mysqlConfig.peerConfig);
-            var collection = firestore.collection('users');
-            return collection.listDocuments()
+            var client = berlioz.database('store').client('firestore');
+            return client.collection('users').listDocuments()
                 .then(documentRefs => {
                     return firestore.getAll(documentRefs);
                 }).then(documentSnapshots => {
@@ -62,9 +46,8 @@ app.get('/', function (req, response) {
 });
 
 app.post('/new-contact', (request, response) => {
-    const firestore = new Firestore(mysqlConfig.peerConfig);
-    var document = firestore.doc(`users/${request.body.name}`);
-    return document.set(request.body)
+    var client = berlioz.database('store').client('firestore');
+    return client.doc(`users/${request.body.name}`).set(request.body)
         .then(() => {
             return response.send({ success: true });
         })

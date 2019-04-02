@@ -1,50 +1,33 @@
 const _ = require('lodash');
 const Promise = require('the-promise');
 const berlioz = require('berlioz-sdk');
-const PubSub = require('@google-cloud/pubsub');
 const mysql = require('promise-mysql');
 const PNF = require('google-libphonenumber').PhoneNumberFormat;
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 berlioz.addon(require('berlioz-gcp'));
 
-var SubscriptionId = null;
-berlioz.queue('jobs').monitorFirst(peer => {
-    console.log('[PubSub] Changed.');
-    console.log(peer)
-    if (peer) {
-        SubscriptionId = peer.subName;
-    } else {
-        SubscriptionId = null;
-    }
-})
-
 function processQueue()
 {
     console.log('[processQueue] ...')
     return Promise.resolve()
         .then(() => {
-            if (!SubscriptionId) {
-                return Promise.timeout(5000); 
-            } else {
-                return processSubscription(SubscriptionId)
-            }
+            return processSubscription()
         })
         .then(() => processQueue());
 }
 
-function processSubscription(id)
+function processSubscription()
 {
-    console.log('[processSubscription] %s...', id)
+    console.log('[processSubscription] ', )
 
     var pullRequest = {
-        subscription: id,
         maxMessages: 5
     }
-    return berlioz.queue('jobs').client(PubSub, 'SubscriberClient').pull(pullRequest)
+    return berlioz.queue('jobs').client('pubsub-subscriber').pull(pullRequest)
         .then(responses => {
             console.log(responses);
-            return Promise.serial(responses.receivedMessages, x => processMessage(id, x));
+            return Promise.serial(responses.receivedMessages, x => processMessage(x));
         })
         .catch(reason => {
             if (reason.code == 4) {
@@ -56,16 +39,15 @@ function processSubscription(id)
         })
 }
 
-function acknowledgeMessage(id, message)
+function acknowledgeMessage(message)
 {
     console.log('[acknowledgeMessage] %s...', message.ackId)
 
     var ackRequest = {
-        subscription: id,
         ackIds: [message.ackId]
     }
     console.log('[acknowledgeMessage] ', ackRequest)
-    return berlioz.queue('jobs').client(PubSub, 'SubscriberClient').acknowledge(ackRequest)
+    return berlioz.queue('jobs').client('pubsub-subscriber').acknowledge(ackRequest)
         .then(result => {
             console.log('[acknowledgeMessage] RESULT: ', result)
         })
@@ -75,7 +57,7 @@ function acknowledgeMessage(id, message)
         })
 }
 
-function processMessage(id, message)
+function processMessage(message)
 {
     console.log('[processMessage] Begin ', message)
     var data = JSON.parse(message.message.data.toString());
@@ -90,7 +72,7 @@ function processMessage(id, message)
         })
         .then(() => {
             console.log('[processMessage] uploaded.')
-            return acknowledgeMessage(id, message);
+            return acknowledgeMessage(message);
         })
         .then(() => {
             console.log('[processMessage] message acknowledged.')

@@ -9,11 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/firestore": "^1.2.0",
-    "berlioz-gcp": "^1.0.7",
-    "berlioz-sdk": "^1.0.113",
+    "berlioz-gcp": "^1.0.8",
+    "berlioz-sdk": "^1.0.116",
     "ejs": "^2.5.8",
     "express": "^4.16.4",
-    "promise": "^8.0.2"
+    "promise": "^8.0.3"
   }
 }

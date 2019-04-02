@@ -9,9 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/pubsub": "^0.28.1",
-    "berlioz-gcp": "^1.0.7",
-    "berlioz-sdk": "^1.0.114",
+    "berlioz-gcp": "^1.0.8",
+    "berlioz-sdk": "^1.0.116",
     "ejs": "^2.6.1",
     "lodash": "^4.17.11",
     "promise": "^8.0.3",
