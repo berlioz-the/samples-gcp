@@ -1,6 +1,5 @@
 const berlioz = require('berlioz-sdk');
 berlioz.addon(require('berlioz-gcp'));
-const mysql = require('promise-mysql');
 const _ = require('lodash');
 const Promise = require('promise');
 const PNF = require('google-libphonenumber').PhoneNumberFormat;
@@ -16,34 +15,20 @@ exports.handler = (event, callback) => {
     var newPhone = phoneUtil.format(number, PNF.INTERNATIONAL);
 
     console.log(`Connecting to database...`);
-    return connectToDatabase()
-        .then(connection => {
-            console.log(`Updating...`);
-            return connection.query(`UPDATE contacts SET phone='${newPhone}' WHERE name = '${body.name}'`)
-        })
+    var connection = getConnection();
+    console.log(`Updating...`);
+    return connection.query(`UPDATE contacts SET phone='${newPhone}' WHERE name='${body.name}'`)
         .then(() => {
             console.log(`Done.`);
             callback();
         });
 }
 
-var mysqlConfig = {
-    config: null
-};
-berlioz.database('book').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.config = _.clone(peer.config);
-        mysqlConfig.config.user = 'root';
-        mysqlConfig.config.password = '';
-        mysqlConfig.config.database = 'demo';
-    } else {
-        mysqlConfig.config = null;
-    }
-});
-function connectToDatabase()
+function getConnection()
 {
-    if (!mysqlConfig.config) {
-        throw new Error('Database Not Present.');
-    }
-    return mysql.createConnection(mysqlConfig.config);
+    return berlioz.database('book').client('mysql', {
+        user: 'root',
+        password: '',
+        database: 'demo'
+    });
 }

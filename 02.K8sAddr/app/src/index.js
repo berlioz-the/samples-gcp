@@ -1,6 +1,5 @@
 const express = require('express');
 const berlioz = require('berlioz-sdk');
-const mysql = require('promise-mysql');
 const _ = require('lodash');
 const Promise = require('promise');
 
@@ -48,13 +47,6 @@ app.post('/entry', (request, response) => {
         })
 })
 
-function executeQuery(querySql)
-{
-    return Promise.resolve(getConnection())
-        .then(connection => {
-            return connection.query(querySql);
-        })
-}
 
 function publishJob(msg)
 {
@@ -66,7 +58,7 @@ function publishJob(msg)
         ],
     };
     console.log("[publishJob] " + JSON.stringify(msgRequest, null, 4));
-    return berlioz.queue('jobs').client(PubSub, 'pubsub-publisher')
+    return berlioz.queue('jobs').client('pubsub-publisher')
         .publish(msgRequest);
 }
 
@@ -79,40 +71,17 @@ app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT,
     console.log(`server is listening on ${process.env.BERLIOZ_LISTEN_ADDRESS}:${process.env.BERLIOZ_LISTEN_PORT_DEFAULT}`)
 })
 
-var mysqlConfig = {
-    connection: null,
-    config: null
-};
-berlioz.database('book').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.config = _.clone(peer.config);
-        mysqlConfig.config.user = 'root';
-        mysqlConfig.config.password = '';
-        mysqlConfig.config.database = 'demo';
-    } else {
-        mysqlConfig.config = null;
-        mysqlConfig.connection = null;
-    }
-});
+function executeQuery(querySql)
+{
+    var connection = getConnection();
+    return connection.query(querySql);
+}
+
 function getConnection()
 {
-    if (mysqlConfig.connection) {
-        return Promise.resolve(mysqlConfig.connection);
-    }
-    if (!mysqlConfig.config) {
-        throw new Error('Database Not Present.');
-    }
-
-    console.log("Connecting to DB:");
-    console.log(mysqlConfig.config);
-    return Promise.resolve(mysql.createConnection(mysqlConfig.config))
-        .then(result => {
-            mysqlConfig.connection = result;
-            return result;
-        })
-        .catch(reason => {
-            console.log("ERROR Connecting to DB:");
-            console.log(reason);
-            throw new Error('Database Not Connected.');
-        })
+    return berlioz.database('book').client('mysql', {
+            user: 'root',
+            password: '',
+            database: 'demo'
+        });
 }

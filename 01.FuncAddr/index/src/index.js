@@ -1,6 +1,5 @@
 const berlioz = require('berlioz-sdk');
 berlioz.addon(require('berlioz-gcp'));
-var mysql = require('promise-mysql');
 var _ = require('lodash');
 var Promise = require('promise');
 var ejs = require('ejs');
@@ -12,9 +11,8 @@ exports.handler = (req, res) => {
         entries: []
     }
 
-    return connectToDatabase()
-    .then(connection => {
-        return Promise.resolve()
+    var connection = getConnection();
+    return Promise.resolve()
         .then(() => {
             if (req.method == 'POST') {
                 return processPost(connection, req, renderData);
@@ -25,7 +23,6 @@ exports.handler = (req, res) => {
             renderData.error = reason;
         })
         .then(() => renderResult(res, renderData));
-    })
 }
 
 function processGet(connection, req, renderData)
@@ -74,28 +71,11 @@ function publishMessage(msg)
         .publish(msgRequest);
 }
 
-
-var mysqlConfig = {
-    config: null
-};
-berlioz.database('book').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.config = _.clone(peer.config);
-        mysqlConfig.config.user = 'root';
-        mysqlConfig.config.password = '';
-    } else {
-        mysqlConfig.config = null;
-    }
-});
-
-function connectToDatabase()
+function getConnection()
 {
-    if (!mysqlConfig.config) {
-        throw new Error('Database Not Present.');
-    }
-
-    var config = _.clone(mysqlConfig.config);
-    config.database = 'demo';
-
-    return mysql.createConnection(config);
+    return berlioz.database('book').client('mysql', {
+            user: 'root',
+            password: '',
+            database: 'demo'
+        });
 }

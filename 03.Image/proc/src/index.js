@@ -26,12 +26,16 @@ function processSubscription()
     return berlioz.queue('jobs').client('pubsub-subscriber').pull(pullRequest)
         .then(responses => {
             console.log(responses);
-            return Promise.serial(responses.receivedMessages, x => processMessage(x));
+            return Promise.serial(responses[0].receivedMessages, x => processMessage(x));
         })
         .catch(reason => {
             if (reason.code == 4) {
                 console.log('[processSubscription] DEADLINE_EXCEEDED...');
-                return;
+                return Promise.timeout(5000);
+            }
+            if (reason.message == 'No peer found.') {
+                console.log('[processSubscription] No Peer. Waiting...');
+                return Promise.timeout(5000);
             }
             console.log('[processSubscription] Error: ');
             console.log(reason);
@@ -87,9 +91,7 @@ function downloadImage(id)
 {
     return new Promise((resolve, reject) => {
         berlioz.database('images').client('storage').file('orig/' + id)
-            .then(file => {
-                return file.createReadStream();
-            })
+            .createReadStream()
             .then(stream => {
                 var bufs = [];
                 stream.on('data', d => {
@@ -126,9 +128,7 @@ function uploadImage(id, buf)
 
     return new Promise((resolve, reject) => {
         berlioz.database('images').client('storage').file('processed/' + id)
-            .then(file => {
-                return file.createWriteStream();
-            })
+            .createWriteStream()
             .then(writeStream => {
                 stream.pipe(writeStream)
                     .on('error', (error) => {

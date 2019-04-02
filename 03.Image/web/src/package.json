@@ -9,13 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "berlioz-gcp": "^1.0.7",
-    "berlioz-sdk": "^1.0.116",
+    "berlioz-gcp": "^1.0.14",
+    "berlioz-sdk": "^1.0.118",
     "ejs": "^2.5.8",
     "express": "^4.16.4",
     "formidable": "^1.2.1",
     "lodash": "^4.17.11",
-    "promise": "^8.0.2",
     "the-promise": "^1.1.4",
     "uuid": "^3.3.2"
   }

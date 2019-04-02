@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "berlioz-gcp": "^1.0.7",
-    "berlioz-sdk": "^1.0.116",
+    "berlioz-gcp": "^1.0.14",
+    "berlioz-sdk": "^1.0.118",
     "canvas": "^2.3.1",
     "filterous": "^2.0.2-beta",
     "lodash": "^4.17.11",

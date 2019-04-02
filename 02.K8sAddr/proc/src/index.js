@@ -27,12 +27,16 @@ function processSubscription()
     return berlioz.queue('jobs').client('pubsub-subscriber').pull(pullRequest)
         .then(responses => {
             console.log(responses);
-            return Promise.serial(responses.receivedMessages, x => processMessage(x));
+            return Promise.serial(responses[0].receivedMessages, x => processMessage(x));
         })
         .catch(reason => {
             if (reason.code == 4) {
                 console.log('[processSubscription] DEADLINE_EXCEEDED...');
-                return;
+                return Promise.timeout(5000);
+            }
+            if (reason.message == 'No peer found.') {
+                console.log('[processSubscription] No Peer. Waiting...');
+                return Promise.timeout(5000);
             }
             console.log('[processSubscription] Error: ');
             console.log(reason);
@@ -66,10 +70,7 @@ function processMessage(message)
     const number = phoneUtil.parseAndKeepRawInput(data.phone, 'US');
     var newPhone = phoneUtil.format(number, PNF.INTERNATIONAL);
 
-    return getConnection()
-        .then(connection => {
-            return connection.query(`UPDATE contacts SET phone='${newPhone}' WHERE name = '${data.name}'`)
-        })
+    return executeQuery(`UPDATE contacts SET phone='${newPhone}' WHERE name = '${data.name}'`)
         .then(() => {
             console.log('[processMessage] uploaded.')
             return acknowledgeMessage(message);
@@ -84,42 +85,19 @@ function processMessage(message)
 }
 
 
-var mysqlConfig = {
-    connection: null,
-    config: null
-};
-berlioz.database('book').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.config = _.clone(peer.config);
-        mysqlConfig.config.user = 'root';
-        mysqlConfig.config.password = '';
-        mysqlConfig.config.database = 'demo';
-    } else {
-        mysqlConfig.config = null;
-        mysqlConfig.connection = null;
-    }
-});
+function executeQuery(querySql)
+{
+    var connection = getConnection();
+    return connection.query(querySql);
+}
+
 function getConnection()
 {
-    if (mysqlConfig.connection) {
-        return Promise.resolve(mysqlConfig.connection);
-    }
-    if (!mysqlConfig.config) {
-        throw new Error('Database Not Present.');
-    }
-
-    console.log("Connecting to DB:");
-    console.log(mysqlConfig.config);
-    return Promise.resolve(mysql.createConnection(mysqlConfig.config))
-        .then(result => {
-            mysqlConfig.connection = result;
-            return result;
-        })
-        .catch(reason => {
-            console.log("ERROR Connecting to DB:");
-            console.log(reason);
-            throw new Error('Database Not Connected.');
-        })
+    return berlioz.database('book').client('mysql', {
+            user: 'root',
+            password: '',
+            database: 'demo'
+        });
 }
 
 return processQueue()

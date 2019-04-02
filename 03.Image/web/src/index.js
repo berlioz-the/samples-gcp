@@ -3,8 +3,6 @@ const Promise = require('the-promise');
 const fs = require('fs');
 const express = require('express');
 const berlioz = require('berlioz-sdk');
-const {Storage} = require('@google-cloud/storage');
-const PubSub = require('@google-cloud/pubsub');
 const formidable = require('formidable');
 const uuid = require('uuid/v4');
 
@@ -54,8 +52,11 @@ app.get('/procimage/:id', function (req, response) {
 
 function queryImages()
 {
-    return berlioz.database('images').client(Storage).getFiles({ prefix: 'orig/'})
+    return berlioz.database('images').client('storage').getFiles({ prefix: 'orig/'})
         .then(files => {
+            // console.log('************FILES****************')
+            // console.log(files)
+            files = files[0];
             return files.map(file => {
                 var parts = file.name.split('/');
                 var name = _.last(parts);
@@ -70,8 +71,8 @@ function queryImages()
 
 function checkImageProcessed(name)
 {
-    return berlioz.database('images').client(Storage).file('processed/' + name)
-        .then(file => file.exists())
+    return berlioz.database('images').client('storage').file('processed/' + name)
+        .exists()
         .then(result => {
             if (result[0]) {
                 return true;
@@ -82,10 +83,8 @@ function checkImageProcessed(name)
 
 function downloadImage(kind, req, response)
 {
-    return berlioz.database('images').client(Storage).file(kind + '/' + req.params.id)
-        .then(file => {
-            return file.createReadStream();
-        })
+    return berlioz.database('images').client('storage').file(kind + '/' + req.params.id)
+        .createReadStream()
         .then(stream => {
             stream.on('end', () => {
                 response.end();
@@ -137,10 +136,9 @@ app.post('/upload', (req, res) => {
 function uploadImage(kind, name, stream)
 {
     return new Promise((resolve, reject) => {
-        berlioz.database('images').client(Storage).file(kind + '/' + name)
-            .then(file => {
-                return file.createWriteStream();
-            })
+        berlioz.database('images').client('storage')
+            .file(kind + '/' + name)
+            .createWriteStream()
             .then(writeStream => {
                 stream.pipe(writeStream)
                     .on('error', (error) => {
@@ -165,7 +163,7 @@ function publishJob(msg)
             }
         ],
     };
-    return berlioz.queue('jobs').client(PubSub, 'PublisherClient')
+    return berlioz.queue('jobs').client('pubsub-publisher')
         .publish(msgRequest);
 }
 

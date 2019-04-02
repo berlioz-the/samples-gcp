@@ -2,7 +2,6 @@ const express = require('express')
 const Promise = require('promise');
 const _ = require('lodash');
 const berlioz = require('berlioz-sdk');
-const mysql = require('promise-mysql');
 
 const app = express();
 berlioz.setupExpress(app);
@@ -60,11 +59,9 @@ app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT, process.env.BERLIOZ_LISTEN_A
 function executeQuery(querySql)
 {
     console.log(`[executeQuery] begin`)
-    return Promise.resolve(getConnection())
-        .then(connection => {
-            console.log(`Executing query: ${querySql}`)
-            return connection.query(querySql);
-        })
+    var connection = getConnection();
+    console.log(`Executing query: ${querySql}`)
+    return connection.query(querySql)
         .then(result => {
             console.log(`Query ${querySql} result:`)
             console.log(result)
@@ -72,41 +69,11 @@ function executeQuery(querySql)
         })
 }
 
-var mysqlConfig = {
-    connection: null,
-    config: null
-};
-berlioz.database('book').monitorFirst(peer => {
-    if (peer) {
-        mysqlConfig.config = _.clone(peer.config);
-        mysqlConfig.config.user = 'root';
-        mysqlConfig.config.password = '';
-        mysqlConfig.config.database = 'demo';
-    } else {
-        mysqlConfig.config = null;
-        mysqlConfig.connection = null;
-    }
-});
 function getConnection()
 {
-    if (mysqlConfig.connection) {
-        return Promise.resolve(mysqlConfig.connection);
-    }
-    if (!mysqlConfig.config) {
-        throw new Error('Database Not Present.');
-    }
-
-    console.log("Connecting to DB:");
-    console.log(mysqlConfig.config);
-    return Promise.resolve(mysql.createConnection(mysqlConfig.config))
-        .then(result => {
-            console.log("Connected to DB.");
-            mysqlConfig.connection = result;
-            return result;
-        })
-        .catch(reason => {
-            console.log("ERROR Connecting to DB:");
-            console.log(reason);
-            throw new Error('Database Not Connected.');
-        })
+    return berlioz.database('book').client('mysql', {
+        user: 'root',
+        password: '',
+        database: 'demo'
+    });
 }
