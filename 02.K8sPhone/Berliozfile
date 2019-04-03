@@ -1,0 +1,8 @@
+---
+kind: cluster
+name: phone
+
+provides:
+    default:
+        service: api
+        public: true

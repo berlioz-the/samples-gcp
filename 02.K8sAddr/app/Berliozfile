@@ -13,3 +13,4 @@ consumes:
   - queue: jobs
     actions:
       - publish
+  - cluster: phone

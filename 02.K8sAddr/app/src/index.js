@@ -1,7 +1,7 @@
 const express = require('express');
 const berlioz = require('berlioz-sdk');
 const _ = require('lodash');
-const Promise = require('promise');
+const Promise = require('the-promise');
 
 const app = express();
 berlioz.setupExpress(app);
@@ -18,8 +18,25 @@ app.get('/', (request, response) => {
 
 app.get('/entries', (request, response) => {
     return executeQuery('SELECT * FROM contacts')
-        .then(result => {
-            response.send(result);
+        .then(contacts => {
+            return Promise.serial(contacts, contact => {
+                var options = { url: `/status/${contact.id}`, json: true };
+                return berlioz.cluster('phone').request(options)
+                    .then(status => {
+                        contact.status = status;
+                        contact.status.success = true;
+                    })
+                    .catch(reason => {
+                        console.log(reason);
+                        contact.status = {
+                            success: false
+                        };
+                    })
+                    .then(() => contact);
+            });
+        })
+        .then(contacts => {
+            response.send(contacts);
         })
         .catch(reason => {
             response.status(400).send({
@@ -46,6 +63,23 @@ app.post('/entry', (request, response) => {
             });
         })
 })
+
+app.post('/call', (request, response) => {
+    var options = { 
+        url: '/perform',
+        method: 'POST',
+        body: request.body,
+        json: true
+    };
+    return berlioz.cluster('phone').request(options)
+        .then(() => {
+            response.send({ success: true });
+        })
+        .catch(reason => {
+            console.log(reason);
+            response.send({ success: false, error: reason });
+        })
+});
 
 
 function publishJob(msg)

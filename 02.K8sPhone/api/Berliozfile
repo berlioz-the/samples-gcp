@@ -1,0 +1,12 @@
+---
+kind: service
+cluster: phone
+name: api
+
+provides:
+    default:
+        port: 3000
+        protocol: http
+
+consumes:
+  - database: store

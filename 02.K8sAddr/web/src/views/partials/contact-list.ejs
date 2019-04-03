@@ -8,7 +8,8 @@
             <thead>
                 <tr>
                     <th scope="col">Name</th>
-                    <th scope="col">Phone</th>
+                    <th scope="col">Phone Number</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -16,6 +17,20 @@
                     <tr>
                         <th scope="row"><%= entry.name %></th>
                         <td><%= entry.phone %></td>
+                        <td>
+                            <% if (entry.status && entry.status.success) { %>
+                                <form action="/call" method="POST">
+                                    <input type="hidden" id="id" name="id" value="<%= entry.id %>">
+                                    <% if (entry.status.inCall) { %>
+                                        <input type="hidden" id="action" name="action" value="hangup">
+                                        <input type="submit" class="btn btn-danger" value="Hang Up" >
+                                    <% } else { %>
+                                        <input type="hidden" id="action" name="action" value="call">
+                                        <input type="submit" class="btn btn-success" value="Call">
+                                    <% }%>
+                                </form>
+                            <% } %>
+                        </td>
                     </tr>
                 <% }); %>
             </tbody>

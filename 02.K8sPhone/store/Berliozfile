@@ -1,0 +1,6 @@
+---
+kind: database
+cluster: phone
+name: store
+class: nosql
+subClass: firestore

@@ -47,6 +47,22 @@ app.post('/new-contact', (request, response) => {
         });
 });
 
+app.post('/call', (request, response) => {
+    var options = { 
+        url: '/call',
+        method: 'POST',
+        body: request.body,
+        json: true
+    };
+    return berlioz.service('app').request(options)
+        .then(() => {
+            response.redirect('/');
+        })
+        .catch(error => {
+            return response.send({ error: error });
+        })
+});
+
 app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT, process.env.BERLIOZ_LISTEN_ADDRESS, (err) => {
     if (err) {
         return console.log('something bad happened', err)
