@@ -1,0 +1,18 @@
+---
+kind: policy
+name: cpu
+target:
+    cluster: phone
+config:
+    min: 0.10
+    max: 0.15
+
+---
+kind: policy
+name: cpu
+target:
+    deployment: gprod
+    cluster: phone
+config:
+    min: 0.15
+    max: 0.20

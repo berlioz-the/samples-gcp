@@ -1,0 +1,18 @@
+---
+kind: policy
+name: memory
+target:
+    cluster: phone
+config:
+    min: 100
+    max: 150
+
+---
+kind: policy
+name: memory
+target:
+    deployment: gprod
+    cluster: phone
+config:
+    min: 150
+    max: null

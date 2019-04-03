@@ -4,8 +4,8 @@ name: cpu
 target:
     cluster: addr
 config:
-    min: 0.15
-    max: 0.2
+    min: 0.10
+    max: 0.15
 
 ---
 kind: policy
@@ -14,8 +14,8 @@ target:
     deployment: gprod
     cluster: addr
 config:
-    min: 0.2
-    max: 0.3
+    min: 0.15
+    max: 0.20
 
 ---
 kind: policy
@@ -25,5 +25,5 @@ target:
     cluster: addr
     service: proc
 config:
-    min: 0.3
-    max: 0.4
+    min: 0.20
+    max: 0.25
