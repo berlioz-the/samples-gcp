@@ -13,6 +13,9 @@ berlioz.addon(require('berlioz-gcp'));
 app.use(express.static('public'))
 app.set('view engine', 'ejs')
 
+const ImagesClient = berlioz.database('images').client('storage');
+const JobsPublisherClient = berlioz.queue('jobs').client('pubsub-publisher');
+
 app.get('/', function (req, response) {
     var renderData = {
         images: []
@@ -52,7 +55,7 @@ app.get('/procimage/:id', function (req, response) {
 
 function queryImages()
 {
-    return berlioz.database('images').client('storage').getFiles({ prefix: 'orig/'})
+    return ImagesClient.getFiles({ prefix: 'orig/'})
         .then(files => {
             // console.log('************FILES****************')
             // console.log(files)
@@ -71,7 +74,7 @@ function queryImages()
 
 function checkImageProcessed(name)
 {
-    return berlioz.database('images').client('storage').file('processed/' + name)
+    return ImagesClient.file('processed/' + name)
         .exists()
         .then(result => {
             if (result[0]) {
@@ -83,7 +86,8 @@ function checkImageProcessed(name)
 
 function downloadImage(kind, req, response)
 {
-    return berlioz.database('images').client('storage').file(kind + '/' + req.params.id)
+    return ImagesClient
+        .file(kind + '/' + req.params.id)
         .createReadStream()
         .then(stream => {
             stream.on('end', () => {
@@ -136,7 +140,7 @@ app.post('/upload', (req, res) => {
 function uploadImage(kind, name, stream)
 {
     return new Promise((resolve, reject) => {
-        berlioz.database('images').client('storage')
+        ImagesClient
             .file(kind + '/' + name)
             .createWriteStream()
             .then(writeStream => {
@@ -163,8 +167,7 @@ function publishJob(msg)
             }
         ],
     };
-    return berlioz.queue('jobs').client('pubsub-publisher')
-        .publish(msgRequest);
+    return JobsPublisherClient.publish(msgRequest);
 }
 
 app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT,

@@ -10,6 +10,12 @@ berlioz.addon(require('berlioz-gcp'));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+const BookClient = berlioz.database('book').client('mysql', {
+    user: 'root',
+    password: '',
+    database: 'demo'
+});
+
 app.get('/', function (req, response) {
     var renderData = {
         entries: []
@@ -58,22 +64,11 @@ app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT, process.env.BERLIOZ_LISTEN_A
 
 function executeQuery(querySql)
 {
-    console.log(`[executeQuery] begin`)
-    var connection = getConnection();
-    console.log(`Executing query: ${querySql}`)
-    return connection.query(querySql)
+    console.log(`[executeQuery] query: ${querySql}`)
+    return BookClient.query(querySql)
         .then(result => {
             console.log(`Query ${querySql} result:`)
             console.log(result)
             return result;
         })
-}
-
-function getConnection()
-{
-    return berlioz.database('book').client('mysql', {
-        user: 'root',
-        password: '',
-        database: 'demo'
-    });
 }

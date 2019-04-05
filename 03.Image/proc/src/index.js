@@ -6,6 +6,9 @@ const Stream = require('stream');
 
 berlioz.addon(require('berlioz-gcp'));
 
+const JobsSubscriberClient = berlioz.queue('jobs').client('pubsub-subscriber');
+const ImagesClient = berlioz.database('images').client('storage');
+
 function processQueue()
 {
     console.log('[processQueue] ...')
@@ -23,7 +26,7 @@ function processSubscription()
     var pullRequest = {
         maxMessages: 5
     }
-    return berlioz.queue('jobs').client('pubsub-subscriber').pull(pullRequest)
+    return JobsSubscriberClient.pull(pullRequest)
         .then(responses => {
             console.log(responses);
             return Promise.serial(responses[0].receivedMessages, x => processMessage(x));
@@ -50,7 +53,7 @@ function acknowledgeMessage(message)
         ackIds: [message.ackId]
     }
     console.log('[acknowledgeMessage] ', ackRequest)
-    return berlioz.queue('jobs').client('pubsub-subscriber').acknowledge(ackRequest)
+    return JobsSubscriberClient.acknowledge(ackRequest)
         .then(result => {
             console.log('[acknowledgeMessage] RESULT: ', result)
         })
@@ -90,7 +93,7 @@ function processMessage(message)
 function downloadImage(id)
 {
     return new Promise((resolve, reject) => {
-        berlioz.database('images').client('storage').file('orig/' + id)
+        ImagesClient.file('orig/' + id)
             .createReadStream()
             .then(stream => {
                 var bufs = [];
@@ -127,7 +130,7 @@ function uploadImage(id, buf)
     stream.end( buf );
 
     return new Promise((resolve, reject) => {
-        berlioz.database('images').client('storage').file('processed/' + id)
+        ImagesClient.file('processed/' + id)
             .createWriteStream()
             .then(writeStream => {
                 stream.pipe(writeStream)

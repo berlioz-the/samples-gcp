@@ -6,6 +6,8 @@ berlioz.addon(require('berlioz-gcp'));
 const app = express();
 berlioz.setupExpress(app);
 
+const FirestoreClient = berlioz.database('store').client('firestore');
+
 app.get('/', function (req, response) {
     var result = {
         status: 'ok'
@@ -14,7 +16,7 @@ app.get('/', function (req, response) {
 });
 
 app.get('/status/:id', function (req, response) {
-    berlioz.database('store').client('firestore')
+    FirestoreClient
         .doc(`phone/${req.params.id}`)
         .get()
         .then(documentSnapshot => {
@@ -39,7 +41,7 @@ app.post('/perform', (request, response) => {
     } else {
         body.inCall = false;
     }
-    berlioz.database('store').client('firestore')
+    FirestoreClient
         .doc(`phone/${request.body.id}`)
         .set(body)
         .then(() => {

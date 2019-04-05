@@ -9,6 +9,8 @@ berlioz.setupExpress(app);
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+const FirestoreClient = berlioz.database('store').client('firestore');
+
 app.get('/', function (req, response) {
     var renderData = {
         entries: []
@@ -16,10 +18,11 @@ app.get('/', function (req, response) {
 
     Promise.resolve()
         .then(() => {
-            var client = berlioz.database('store').client('firestore');
-            return client.collection('users').listDocuments()
+            return FirestoreClient
+                .collection('users')
+                .listDocuments()
                 .then(documentRefs => {
-                    return firestore.getAll(documentRefs);
+                    return FirestoreClient.getAll(documentRefs);
                 }).then(documentSnapshots => {
                     documentSnapshots = documentSnapshots.filter(x => x.exists);
                     var datas = documentSnapshots.map(x => x.data());
@@ -46,8 +49,9 @@ app.get('/', function (req, response) {
 });
 
 app.post('/new-contact', (request, response) => {
-    var client = berlioz.database('store').client('firestore');
-    return client.doc(`users/${request.body.name}`).set(request.body)
+    return FirestoreClient
+        .doc(`users/${request.body.name}`)
+        .set(request.body)
         .then(() => {
             return response.send({ success: true });
         })

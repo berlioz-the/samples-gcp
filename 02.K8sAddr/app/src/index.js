@@ -7,6 +7,13 @@ const app = express();
 berlioz.setupExpress(app);
 berlioz.addon(require('berlioz-gcp'));
 
+const BookClient = berlioz.database('book').client('mysql', {
+    user: 'root',
+    password: '',
+    database: 'demo'
+});
+const JobsClient = berlioz.queue('jobs').client('pubsub-publisher');
+
 app.get('/', (request, response) => {
     var data = {
         myId: process.env.BERLIOZ_TASK_ID,
@@ -92,8 +99,7 @@ function publishJob(msg)
         ],
     };
     console.log("[publishJob] " + JSON.stringify(msgRequest, null, 4));
-    return berlioz.queue('jobs').client('pubsub-publisher')
-        .publish(msgRequest);
+    return JobsClient.publish(msgRequest);
 }
 
 app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT,
@@ -107,15 +113,5 @@ app.listen(process.env.BERLIOZ_LISTEN_PORT_DEFAULT,
 
 function executeQuery(querySql)
 {
-    var connection = getConnection();
-    return connection.query(querySql);
-}
-
-function getConnection()
-{
-    return berlioz.database('book').client('mysql', {
-            user: 'root',
-            password: '',
-            database: 'demo'
-        });
+    return BookClient.query(querySql);
 }
