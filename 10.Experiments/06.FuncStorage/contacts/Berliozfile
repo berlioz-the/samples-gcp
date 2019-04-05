@@ -1,0 +1,6 @@
+---
+kind: database
+cluster: gcpx
+name: contacts
+class: storage
+subClass: storage
