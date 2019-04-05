@@ -28,10 +28,10 @@ exports.handler = (req, res) => {
 
 function processGet(req, renderData)
 {
-    const client = berlioz.database('store').newClient('firestore');
+    const client = berlioz.database('store').client('firestore');
     return client.collection('contacts').listDocuments()
         .then(documentRefs => {
-            return firestore.getAll(documentRefs);
+            return client.getAll(documentRefs);
         }).then(documentSnapshots => {
             documentSnapshots = documentSnapshots.filter(x => x.exists);
             var datas = documentSnapshots.map(x => x.data());
@@ -45,7 +45,7 @@ function processGet(req, renderData)
 
 function processPost(req, renderData)
 {
-    const client = berlioz.database('store').newClient('firestore');
+    const client = berlioz.database('store').client('firestore');
     return client.doc(`contacts/${req.body.name}`).set(req.body);
 }
 

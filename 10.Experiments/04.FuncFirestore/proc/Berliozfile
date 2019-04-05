@@ -1,0 +1,17 @@
+---
+kind: lambda
+cluster: gcpx
+name: proc
+
+runtime: nodejs6
+handler: handler
+timeout: 15
+
+consumes:
+    - database: store
+      actions:
+      - subscribe
+      subcriber: 
+        event_type: write
+        document: contacts/ruben 
+
