@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "berlioz-gcp": "^1.0.14",
-    "berlioz-sdk": "^1.0.118",
+    "berlioz-sdk": "^1.0.120",
     "google-libphonenumber": "^3.2.2",
     "lodash": "^4.17.11",
     "promise-mysql": "^3.3.1",

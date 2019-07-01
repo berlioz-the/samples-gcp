@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "berlioz-gcp": "^1.0.14",
-    "berlioz-sdk": "^1.0.118",
+    "berlioz-sdk": "^1.0.120",
     "ejs": "^2.5.8",
     "express": "^4.16.4",
     "formidable": "^1.2.1",
