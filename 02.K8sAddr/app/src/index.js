@@ -30,22 +30,33 @@ app.get('/entries', (request, response) => {
                 var options = { url: `/status/${contact.id}`, json: true };
                 return berlioz.cluster('phone').request(options)
                     .then(status => {
+                        console.log("**** THEN:")
+                        console.log(status)
                         contact.status = status;
                         contact.status.success = true;
                     })
                     .catch(reason => {
-                        console.log(reason);
+                        console.log("**** CATCH:")
+                        console.log(reason.message);
                         contact.status = {
                             success: false
                         };
                     })
-                    .then(() => contact);
+                    .then(() => {
+                        console.log("**** CONTACT:")
+                        console.log(contact);
+                        return contact;
+                    });
             });
         })
         .then(contacts => {
+            console.log("**** FINAL CONTACTS:")
+            console.log(contacts);
             response.send(contacts);
         })
         .catch(reason => {
+            console.log("**** FINAL ERROR:")
+            console.log(reason);
             response.status(400).send({
                error: reason.message
             });

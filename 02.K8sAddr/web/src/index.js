@@ -21,6 +21,8 @@ app.get('/', function (req, response) {
             }
         })
         .catch(error => {
+            console.log("**** ERROR")
+            console.log(error)
             if (error instanceof Error) {
                 renderData.error = error.stack + error.stack;
             } else {

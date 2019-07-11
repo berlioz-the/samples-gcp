@@ -30,6 +30,10 @@ app.get('/status/:id', function (req, response) {
             data.success = true;
             response.send(data);
         })
+        .catch(reason => {
+            console.log(reason);
+            response.status(500).send(reason.message)
+        });
 });
 
 app.post('/perform', (request, response) => {
