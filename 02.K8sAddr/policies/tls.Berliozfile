@@ -1,0 +1,10 @@
+---
+kind: policy
+name: tls
+target:
+  deployment: gtest
+  cluster: addr
+  endpoint: web
+config:
+  enable: true
+  # managed-certificate: true

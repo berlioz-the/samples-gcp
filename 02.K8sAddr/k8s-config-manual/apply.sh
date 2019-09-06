@@ -1,0 +1,1 @@
+kubectl apply -f secret-gtest-addr-web.yaml
