@@ -6,3 +6,7 @@ class: sql
 subClass: sql
 
 init: init.sql
+
+config:
+  engine: mysql
+  version: 5.7 

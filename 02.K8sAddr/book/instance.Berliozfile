@@ -1,0 +1,8 @@
+---
+kind: policy
+name: instance-type
+target:
+    cluster: addr
+    database: book
+config:
+    value: db-n1-standard-2

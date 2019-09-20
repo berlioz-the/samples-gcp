@@ -1,0 +1,9 @@
+---
+kind: policy
+name: storage
+target:
+    cluster: addr
+    database: book
+config:
+    kind: ssd
+    size: 30
