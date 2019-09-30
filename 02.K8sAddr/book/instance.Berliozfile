@@ -5,4 +5,4 @@ target:
     cluster: addr
     database: book
 config:
-    value: db-n1-standard-2
+    value: db-n1-standard-1

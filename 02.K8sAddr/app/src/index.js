@@ -7,6 +7,8 @@ const app = express();
 berlioz.setupExpress(app);
 berlioz.addon(require('berlioz-gcp'));
 
+app.set('view engine', 'ejs');
+
 const BookClient = berlioz.database('book').client('mysql', {
     user: 'root',
     password: '',
@@ -83,7 +85,7 @@ app.post('/entry', (request, response) => {
 })
 
 app.post('/call', (request, response) => {
-    var options = { 
+    var options = {
         url: '/perform',
         method: 'POST',
         body: request.body,

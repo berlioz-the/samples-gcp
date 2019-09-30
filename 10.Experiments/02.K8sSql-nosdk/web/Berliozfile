@@ -1,0 +1,12 @@
+---
+kind: service
+cluster: gcpx
+name: web
+
+provides:
+    default:
+        port: 3000
+        protocol: http
+
+consumes:
+  - database: book
