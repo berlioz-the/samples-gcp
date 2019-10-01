@@ -1,0 +1,23 @@
+        volumeMounts:
+        - mountPath: /var/secrets/google
+          name: google-cloud-key
+        - mountPath: /etc/berlioz/
+          name: config-consumes-root
+        - mountPath: /etc/berlioz/database
+          name: config-consumes-database
+
+
+
+      volumes:
+      - name: google-cloud-key
+        secret:
+          defaultMode: 420
+          secretName: gprod-sprt-main-grfna
+      - configMap:
+          defaultMode: 420
+          name: config-consumes-root
+        name: config-consumes-root
+      - configMap:
+          defaultMode: 420
+          name: config-consumes-database
+        name: config-consumes-database
