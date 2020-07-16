@@ -14,7 +14,7 @@
     "ejs": "^2.5.8",
     "express": "^4.16.4",
     "formidable": "^1.2.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "the-promise": "^1.1.4",
     "uuid": "^3.3.2"
   }
